@@ -1,0 +1,54 @@
+# Core LLM / LangChain
+langchain
+langchain-core
+langchain-community
+langchain-openai
+langgraph
+
+# LCEL / Agents / Tools
+langsmith
+
+# Mistral AI
+mistralai
+
+# Tavily Search Tool
+tavily-python
+
+# Web Scraping
+beautifulsoup4
+requests
+lxml
+
+# Environment Variables
+python-dotenv
+
+# Data Validation
+pydantic
+
+# Async HTTP Requests
+httpx
+aiohttp
+
+# Tokenizer Utilities
+tiktoken
+
+# Vector Database (optional but useful for future RAG)
+chromadb
+
+# Embeddings / ML Utilities
+numpy
+pandas
+
+# FastAPI Backend (optional but recommended)
+fastapi
+uvicorn
+
+# Logging / Utilities
+typing-extensions
+
+# Optional Development Tools
+ipykernel
+jupyter
+
+# Optional Streamlit UI
+streamlit
