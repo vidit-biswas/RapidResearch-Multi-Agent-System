@@ -23,6 +23,7 @@ def build_search_agent():
         llm=llm,
         agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
         verbose=True
+        handle_parsing_errors=True
     )
 
     return agent
@@ -35,6 +36,7 @@ def build_reader_agent():
         llm=llm,
         agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
         verbose=True
+        handle_parsing_errors=True
     )
 
     return agent
