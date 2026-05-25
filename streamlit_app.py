@@ -378,50 +378,127 @@ if run_btn:
         st.rerun()
 
 if st.session_state.running and not st.session_state.done:
+
     results = {}
     topic_val = st.session_state.topic_input
 
+    # ---------------- SEARCH AGENT ----------------
     with st.spinner("🔍  Search Agent is working…"):
+
         search_agent = build_search_agent()
-        sr = search_agent.invoke({
-            "input": [("user", f"Find recent, reliable and detailed information about: {topic_val}")]
-        })
-        results["search"] = sr["messages"][-1].content
+
+        try:
+            sr = search_agent.invoke({
+                "input": f"Find recent, reliable and detailed information about: {topic_val}"
+            })
+
+            # DEBUG
+            # st.write(sr)
+
+            if isinstance(sr, dict):
+                results["search"] = sr.get("output", str(sr))
+            else:
+                results["search"] = str(sr)
+
+        except Exception as e:
+            results["search"] = f"Search Agent Error:\n{str(e)}"
+
         st.session_state.results = dict(results)
 
+    # ---------------- READER AGENT ----------------
     with st.spinner("📄  Reader Agent is scraping top resources…"):
+
         reader_agent = build_reader_agent()
-        rr = reader_agent.invoke({
-            "input": [("user",
-                f"Based on the following search results about '{topic_val}', "
-                f"pick the most relevant URL and scrape it for deeper content.\n\n"
-                f"Search Results:\n{results['search'][:800]}"
-            )]
-        })
-        results["reader"] = rr["messages"][-1].content
+
+        try:
+            rr = reader_agent.invoke({
+                "input":
+                    f"Based on the following search results about '{topic_val}', "
+                    f"pick the most relevant URL and scrape it for deeper content.\n\n"
+                    f"Search Results:\n{results['search'][:1500]}"
+            })
+
+            # DEBUG
+            # st.write(rr)
+
+            if isinstance(rr, dict):
+                results["reader"] = rr.get("output", str(rr))
+            else:
+                results["reader"] = str(rr)
+
+        except Exception as e:
+            results["reader"] = f"Reader Agent Error:\n{str(e)}"
+
         st.session_state.results = dict(results)
 
+    # ---------------- WRITER CHAIN ----------------
     with st.spinner("✍️  Writer is drafting the report…"):
-        research_combined = (
-            f"SEARCH RESULTS:\n{results['search']}\n\n"
-            f"DETAILED SCRAPED CONTENT:\n{results['reader']}"
-        )
-        results["writer"] = writer_chain.invoke({
-            "topic": topic_val,
-            "research": research_combined
-        })
+
+        try:
+
+            research_combined = (
+                f"SEARCH RESULTS:\n{results['search']}\n\n"
+                f"DETAILED SCRAPED CONTENT:\n{results['reader']}"
+            )
+
+            writer_result = writer_chain.invoke({
+                "topic": topic_val,
+                "research": research_combined
+            })
+
+            # Handle LangChain output
+            if isinstance(writer_result, dict):
+
+                if "text" in writer_result:
+                    results["writer"] = writer_result["text"]
+
+                elif "output" in writer_result:
+                    results["writer"] = writer_result["output"]
+
+                else:
+                    results["writer"] = str(writer_result)
+
+            else:
+                results["writer"] = str(writer_result)
+
+        except Exception as e:
+            results["writer"] = f"Writer Chain Error:\n{str(e)}"
+
         st.session_state.results = dict(results)
 
+    # ---------------- CRITIC CHAIN ----------------
     with st.spinner("🧐  Critic is reviewing the report…"):
-        results["critic"] = critic_chain.invoke({
-            "report": results["writer"]
-        })
+
+        try:
+
+            critic_result = critic_chain.invoke({
+                "report": results["writer"]
+            })
+
+            if isinstance(critic_result, dict):
+
+                if "text" in critic_result:
+                    results["critic"] = critic_result["text"]
+
+                elif "output" in critic_result:
+                    results["critic"] = critic_result["output"]
+
+                else:
+                    results["critic"] = str(critic_result)
+
+            else:
+                results["critic"] = str(critic_result)
+
+        except Exception as e:
+            results["critic"] = f"Critic Chain Error:\n{str(e)}"
+
         st.session_state.results = dict(results)
 
+    # ---------------- COMPLETE ----------------
     st.session_state.running = False
     st.session_state.done = True
-    st.rerun()
 
+    st.rerun()
 
 r = st.session_state.results
 
