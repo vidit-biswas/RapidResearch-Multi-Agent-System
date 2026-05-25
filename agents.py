@@ -22,7 +22,7 @@ def build_search_agent():
         tools=[web_search],
         llm=llm,
         agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-        verbose=True
+        verbose=True,
         handle_parsing_errors=True
     )
 
@@ -35,7 +35,7 @@ def build_reader_agent():
         tools=[scrape_url],
         llm=llm,
         agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-        verbose=True
+        verbose=True,
         handle_parsing_errors=True
     )
 
