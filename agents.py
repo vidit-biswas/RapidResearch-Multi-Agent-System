@@ -5,16 +5,16 @@ from langchain.agents import initialize_agent, AgentType
 
 from tools import web_search, scrape_url
 
-from dotenv import load_dotenv
 
-load_dotenv()
+
+import streamlit as st
 
 # Model setup
 llm = ChatMistralAI(
     model="mistral-small-2506",
-    temperature=0
+    temperature=0,
+    api_key=st.secrets["MISTRAL_API_KEY"]
 )
-
 # First agent
 def build_search_agent():
 
